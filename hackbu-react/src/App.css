@@ -1,5 +1,13 @@
+@import '~antd/dist/antd.css';
+
 .App {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.components {
+  width: "100%";
+  flex-direction: row;
 }
 
 .App-logo {
