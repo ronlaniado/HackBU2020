@@ -8,16 +8,16 @@ import os
 import pandas as pd
 
 df_aapl = pd.read_csv("AAPL.csv", engine='python')
-df_amzn = pd.read_csv("AMZN.csv", engine='python')
+"""df_amzn = pd.read_csv("AMZN.csv", engine='python')
 df_fb = pd.read_csv("FB.csv", engine='python')
 df_googl = pd.read_csv("GOOGL.csv", engine='python')
-df_msft = pd.read_csv("MSFT.csv", engine='python')
+df_msft = pd.read_csv("MSFT.csv", engine='python')"""
 
 
 # In[72]:
 
 
-from matplotlib import pyplot as plt
+"""from matplotlib import pyplot as plt
 
 plt.figure()
 plt.plot(df_aapl["Open"])
@@ -89,7 +89,7 @@ plt.ylabel('Price (USD)')
 plt.xlabel('Days')
 plt.legend(['Open','High','Low','Close'], loc='upper left')
 plt.show()
-print("checking if any null values are present\n", df_aapl.isnull().sum())
+print("checking if any null values are present\n", df_aapl.isnull().sum())"""
 
 
 # In[77]:
@@ -112,7 +112,7 @@ x_aapl = df_train_aapl.loc[:,train_cols]
 x_train_aapl = min_max_scaler.fit_transform(x_aapl)
 x_test_aapl = min_max_scaler.transform(df_test_aapl.loc[:,train_cols])
 
-#Prepocessing for amzn
+"""#Prepocessing for amzn
 df_train_amzn, df_test_amzn = train_test_split(df_amzn, train_size=0.8, test_size=0.2, shuffle=False)
 print("Train and Test size amzn", len(df_train_amzn), len(df_test_amzn))
 x_amzn = df_train_amzn.loc[:,train_cols]
@@ -138,7 +138,7 @@ df_train_msft, df_test_msft = train_test_split(df_msft, train_size=0.8, test_siz
 print("Train and Test size msft", len(df_train_msft), len(df_test_msft))
 x_msft = df_train_msft.loc[:,train_cols]
 x_train_msft = min_max_scaler.fit_transform(x_msft)
-x_test_msft = min_max_scaler.transform(df_test_msft.loc[:,train_cols])
+x_test_msft = min_max_scaler.transform(df_test_msft.loc[:,train_cols])"""
 
 
 # In[101]:
@@ -146,7 +146,7 @@ x_test_msft = min_max_scaler.transform(df_test_msft.loc[:,train_cols])
 
 TIME_STEPS = 30
 BATCH_SIZE = 60
-DAYS_AFTER = 10
+#DAYS_AFTER = 10
 
 
 # In[102]:
@@ -154,23 +154,22 @@ DAYS_AFTER = 10
 
 import numpy as np
 from tqdm import tqdm_notebook
-def build_timeseries(mat, y_col_index, days_after):
+def build_timeseries(mat, y_col_index):
     # y_col_index is the index of column that would act as output column
     # total number of time-series samples would be len(mat) - TIME_STEPS
-    dim_0 = mat.shape[0] - TIME_STEPS - days_after + 1
+    dim_0 = mat.shape[0] - TIME_STEPS
     dim_1 = mat.shape[1]
     x = np.zeros((dim_0, TIME_STEPS, dim_1))
     y = np.zeros((dim_0,))
     
     for i in tqdm_notebook(range(dim_0)):
         x[i] = mat[i:TIME_STEPS+i]
-        y[i] = mat[TIME_STEPS + i + days_after -1, y_col_index]
+        y[i] = mat[TIME_STEPS+i, y_col_index]
     print("length of time-series i/o",x.shape,y.shape)
     return x, y
 
 
 # In[103]:
-
 
 def trim_dataset(mat, batch_size):
     """
@@ -187,14 +186,14 @@ def trim_dataset(mat, batch_size):
 
 
 #Forming training, validation, and test datasets for aapl
-x_t_aapl, y_t_aapl = build_timeseries(x_train_aapl, 3, DAYS_AFTER)
+x_t_aapl, y_t_aapl = build_timeseries(x_train_aapl, 3)
 x_t_aapl = trim_dataset(x_t_aapl, BATCH_SIZE)
 y_t_aapl = trim_dataset(y_t_aapl, BATCH_SIZE)
-x_temp_aapl, y_temp_aapl = build_timeseries(x_test_aapl, 3, DAYS_AFTER)
+x_temp_aapl, y_temp_aapl = build_timeseries(x_test_aapl, 3)
 x_val_aapl, x_test_t_aapl = np.split(trim_dataset(x_temp_aapl, BATCH_SIZE),2)
 y_val_aapl, y_test_t_aapl = np.split(trim_dataset(y_temp_aapl, BATCH_SIZE),2)
 
-#Forming training, validation, and test datasets for amzn
+"""#Forming training, validation, and test datasets for amzn
 x_t_amzn, y_t_amzn = build_timeseries(x_train_amzn, 3, DAYS_AFTER)
 x_t_amzn = trim_dataset(x_t_amzn, BATCH_SIZE)
 y_t_amzn = trim_dataset(y_t_amzn, BATCH_SIZE)
@@ -225,8 +224,8 @@ y_t_msft = trim_dataset(y_t_msft, BATCH_SIZE)
 x_temp_msft, y_temp_msft = build_timeseries(x_test_msft, 3, DAYS_AFTER)
 x_val_msft, x_test_t_msft = np.split(trim_dataset(x_temp_msft, BATCH_SIZE),2)
 y_val_msft, y_test_t_msft = np.split(trim_dataset(y_temp_msft, BATCH_SIZE),2)
-
-
+"""
+EPOCHS = 40
 
 # In[114]:
 
@@ -237,14 +236,13 @@ from keras.layers.recurrent import LSTM
 from keras import optimizers
 from keras.models import model_from_json
 
-lstm_model_aapl = Sequential()
-lstm_model_aapl.add(LSTM(100, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t_aapl.shape[2]), dropout=0.0, recurrent_dropout=0.0, stateful=True,     kernel_initializer='random_uniform'))
-lstm_model_aapl.add(Dropout(0.5))
-lstm_model_aapl.add(Dense(20,activation='relu'))
-lstm_model_aapl.add(Dense(1,activation='sigmoid'))
-optimizer = optimizers.RMSprop()
-lstm_model_aapl.compile(loss='mean_squared_error', optimizer=optimizer)
-EPOCHS = 40
+lstm_mode_aapl = Sequential()
+lstm_mode_aapl.add(LSTM(100, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t_aapl.shape[2]), dropout=0.0, recurrent_dropout=0.0, stateful=True,     kernel_initializer='random_uniform'))
+lstm_mode_aapl.add(Dropout(0.5))
+lstm_mode_aapl.add(Dense(20,activation='relu'))
+lstm_mode_aapl.add(Dense(1,activation='sigmoid'))
+optimizer = optimizers.RMSprop(learning_rate=0.01)
+lstm_mode_aapl.compile(loss='mean_squared_error', optimizer=optimizer)
 
 
 # In[1]:
@@ -253,15 +251,15 @@ EPOCHS = 40
 from keras.callbacks.callbacks import CSVLogger
 csv_logger = CSVLogger(os.path.join('.', 'aapl' + '.log'), append=True)
 
-history = lstm_model_aapl.fit(x_t_aapl, y_t_aapl, epochs=EPOCHS, verbose=2, batch_size=BATCH_SIZE,
+history = lstm_mode_aapl.fit(x_t_aapl, y_t_aapl, epochs=EPOCHS, verbose=2, batch_size=BATCH_SIZE,
                     shuffle=False, validation_data=(trim_dataset(x_val_aapl, BATCH_SIZE),
                     trim_dataset(y_val_aapl, BATCH_SIZE)), callbacks=[csv_logger])
+"""
+#scores = lstm_mode_aapll_aapl.evaluate(x_val_aapl,y_val_aapl,verbose=0)
+#print("%s: %.2f%%" % (lstm_mode_aapll_aapl.metrics_names[1],scores[1]*100))
 
-scores = lstm_model_aapl.evaluate(x_val_aapl,y_val_aapl,verbose=0)
-print("%s: %.2f%%" % (lstm_model_aapl.metrics_names[1],scores[1]*100))
-
-model_json = lstm_model_aapl.to_json()
-with open(lstm_model_aapl.json,"w") as json_file:
+model_json = lstm_mode_aapll_aapl.to_json()
+with open('lstm_mode_aapll_aapl.json',"w") as json_file:
     json_file.write(model_json)
-lstm_model_aapl.save_weights("model_aapl.h5")
-print("saved model to disk")
+lstm_mode_aapll_aapl.save_weights("model_aapl.h5")
+print("saved model to disk")"""
