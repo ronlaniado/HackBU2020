@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema({
     shares: [{
         symbol: String,
         total_spent: Number,
-        total_shares: Number
+        total_shares: Number,
+        average_spent: Number
     }],
     transactions: [{
         t_symbol: String,
@@ -39,34 +40,37 @@ async function buyShare(id, share){
     const share_exists = user.shares.find(user.shares.symbol === symbol_);
     if(!share_exists){
         user.shares.push(share);
+        updateBalance(id, -1 * share.total_shares() * get_prince(share.symbol))
     }
     else{
         user.shares[share_exists].total_shares += share.total_shares; 
-        user.shares[share_exists].total_spent += share.total_spent;
+        user.shares[share_exists].total_spent += share.total_shares * get_price(share.symbol); //PLACEHOLDER FOR API
+        updateBalance(id, -1 * share.total_shares * get_price(share.symbol)) //PLACEHOLDER FOR API
     }
 }
 
 async function sellShare(id, share){
     const user = await User.findById(id);
     if(!course) return;
-    const share_exists = user.shares.find(user.shares.symbol === symbol_);
+    const share_exists = user.shares.find(user.shares.symbol === symbol_); 
     if(!share_exists){
         return;
     }
     else{
         if(share.total_shares > user.shares[share_exists]){
-            balance = updateBalance(share.total_shares * share.total_spent);
+            user.shares[share_exists].splice(share_exists, 1);
+            user.balance = updateBalance(share.total_shares * share.total_spent);
         }
         else{
             user.shares[share_exists].total_shares -= share.total_shares; 
-            user.shares[share_exists].total_spent -= share.total_spent;
-            updateBalance(id, share.total_shares * get_price(share.symbol))
+            user.shares[share_exists].total_spent -= share.total_shares * get_price(share.symbol); //PLACEHOLDER FOR API
+            updateBalance(id, share.total_shares * get_price(share.symbol)) //PLACEHOLDER FOR API
         }
     }
 }
 
-async function updateBalanceFrom(id, balance_){
+async function updateBalance(id, balance_){
     const user = await User.findById(id);
     if(!course) return;
-    const share_exists = user.shares.find(user.shares.symbol === symbol_);
+    user.balance += balance_;
 }
