@@ -24,14 +24,21 @@ const userSchema = new mongoose.Schema({
     balance: Number
 });
 
+const User = mongoose.model('User', userSchema);
+
 async function newUser(username_, password_, balance_){
     const user = new User({
-            username: username_,
-            password: crypto.createHash('sha3').update(password_).digest('hex'),
-            balance: balance_
+        username: username_,
+        //password: crypto.createHash('sha3').update(password_).digest('hex'),
+        balance: balance_
     });
     const result = await user.save();
     console.log(result);
+}
+
+async function deleteUser(id){
+    const result = await User.deleteOne({_id: id});
+    return result;
 }
 
 async function buyShare(id, share){
@@ -80,14 +87,10 @@ async function updateBalance(id, balance_){
     const result = await user.save();
     return result;
 }
-
-async function getUser(id){
-    const user = await User.findById(id);
-    if(!course) return;
-    return {
-        username: user.username,
-        shares: user.shares,
-        transactions: user.transactions,
-        balance: user.balance
-    };
+function retUser(user){
+    return user;
+}
+function getUserQuery(){
+    var query = User.find({_id: id});
+    return query;
 }
