@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const fs = require('fs');
+const express = require('express');
+const app = express();
 
 mongoose.connect('mongodb://localhost/stock_market')
 .then(() => console.log('Connected to MongoDB...'))
@@ -87,10 +89,44 @@ async function updateBalance(id, balance_){
     const result = await user.save();
     return result;
 }
-function retUser(user){
-    return user;
-}
-function getUserQuery(){
-    var query = User.find({_id: id});
+
+function getUserQuery(username_){
+    var query = User.find({username: username_});
     return query;
 }
+
+app.use(express.json());
+
+
+app.get('/:username', (req, res) => {
+    console.log('getting',req.params.username);
+
+    getUserQuery(req.params.username).exec(function(err,users){
+        if(err) return console.log("FUCK");
+        console.log(users);
+        users.forEach(function(user){
+            console.log(req.params.user);
+            res.send(user);
+        });    
+    });
+});
+
+app.post('/', (req, res) => {
+    res.send(user);
+});
+
+app.put('/', (req, res) => {
+    res.send(user);
+});
+
+app.delete('/', (req, res) => {
+    res.send(user);
+});
+
+const port = process.env.PORT || 666;
+
+app.listen(port, () => {
+    console.log(`Listening port ${port}...`)
+});
+
+//newUser('kmanriq1', '12345', 10000);
