@@ -71,8 +71,7 @@ export default class MarketActions extends React.Component {
         side: e.target.id,
         quantity: this.state.askingQuantity,
         symbol: this.state.currentSymbol,
-        username: "username",
-        password: "password"
+        username: "username"      
       };
       console.log(data);
       fetch("https://localhost:666/", {
@@ -99,7 +98,7 @@ export default class MarketActions extends React.Component {
           <div className="sides price-buy">
             Price to buy:
             <Input
-              readOnly="readonly"
+              readOnly="readnly"
               className="input"
               value={"$" + parseFloat(this.state.currentPrice).toFixed(2)}
             ></Input>
@@ -138,14 +137,11 @@ export default class MarketActions extends React.Component {
           </div>
           <div className="price-sell">
             Price to sell:
-            <InputNumber
+            <Input
+              readOnly="readonly"
               className="input"
               defaultValue={this.state.currentPrice}
-              formatter={value =>
-                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              parser={value => value.replace(/\$\s?|(,*)/g, "")}
-            ></InputNumber>{" "}
+            ></Input>{" "}
             per share
           </div>
           <div className="total-cost">
