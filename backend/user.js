@@ -47,6 +47,8 @@ async function buyShare(id, share){
         user.shares[share_exists].total_spent += share.total_shares * get_price(share.symbol); //PLACEHOLDER FOR API
         updateBalance(id, -1 * share.total_shares * get_price(share.symbol)) //PLACEHOLDER FOR API
     }
+    const result = await user.save();
+    return result;
 }
 
 async function sellShare(id, share){
@@ -67,10 +69,25 @@ async function sellShare(id, share){
             updateBalance(id, share.total_shares * get_price(share.symbol)) //PLACEHOLDER FOR API
         }
     }
+    const result = await user.save();
+    return result;
 }
 
 async function updateBalance(id, balance_){
     const user = await User.findById(id);
     if(!course) return;
     user.balance += balance_;
+    const result = await user.save();
+    return result;
+}
+
+async function getUser(id){
+    const user = await User.findById(id);
+    if(!course) return;
+    return {
+        username: user.username,
+        shares: user.shares,
+        transactions: user.transactions,
+        balance: user.balance
+    };
 }
