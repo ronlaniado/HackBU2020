@@ -33,7 +33,7 @@ async function newUser(username_, password_, balance_){
     console.log(result);
 }
 
-async function buyShare(id, symbol_, total_, ){
+async function buyShare(id, share){
     const user = await User.findById(id);
     if(!course) return;
     const share_exists = user.shares.find(user.shares.symbol === symbol_);
@@ -41,6 +41,32 @@ async function buyShare(id, symbol_, total_, ){
         user.shares.push(share);
     }
     else{
-        user.share[share_exists].total_shares += share.t_price; 
+        user.shares[share_exists].total_shares += share.total_shares; 
+        user.shares[share_exists].total_spent += share.total_spent;
     }
+}
+
+async function sellShare(id, share){
+    const user = await User.findById(id);
+    if(!course) return;
+    const share_exists = user.shares.find(user.shares.symbol === symbol_);
+    if(!share_exists){
+        return;
+    }
+    else{
+        if(share.total_shares > user.shares[share_exists]){
+            balance = updateBalance(share.total_shares * share.total_spent);
+        }
+        else{
+            user.shares[share_exists].total_shares -= share.total_shares; 
+            user.shares[share_exists].total_spent -= share.total_spent;
+            updateBalance(id, share.total_shares * get_price(share.symbol))
+        }
+    }
+}
+
+async function updateBalanceFrom(id, balance_){
+    const user = await User.findById(id);
+    if(!course) return;
+    const share_exists = user.shares.find(user.shares.symbol === symbol_);
 }
