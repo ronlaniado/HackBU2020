@@ -28,10 +28,9 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-async function newUser(username_, password_, balance_){
+async function newUser(username_, balance_){
     const user = new User({
         username: username_,
-        //password: crypto.createHash('sha3').update(password_).digest('hex'),
         balance: balance_
     });
     const result = await user.save();
@@ -43,26 +42,28 @@ async function deleteUser(id){
     return result;
 }
 
-async function buyShare(id, share){
+async function buyShare(total_shares_, current_price_){
     const user = await User.findById(id);
-    if(!course) return;
+    if(!user) return;
     const share_exists = user.shares.find(user.shares.symbol === symbol_);
     if(!share_exists){
         user.shares.push(share);
-        updateBalance(id, -1 * share.total_shares() * get_prince(share.symbol))
+        user.shares[user.shares.length - 1].average_spent = current_price;
+        updateBalance(id, -1 * total_shares_ * current_price_);
     }
     else{
-        user.shares[share_exists].total_shares += share.total_shares; 
-        user.shares[share_exists].total_spent += share.total_shares * get_price(share.symbol); //PLACEHOLDER FOR API
-        updateBalance(id, -1 * share.total_shares * get_price(share.symbol)) //PLACEHOLDER FOR API
+        user.shares[share_exists].total_shares += total_shares_; 
+        user.shares[share_exists].total_spent += total_shares_ * current_price_; //PLACEHOLDER FOR API
+        user.shares[share_exists].average_spent = total_spent / total_shares;
+        updateBalance(id, -1 * total_shares_ * current_price_); //PLACEHOLDER FOR API
     }
     const result = await user.save();
     return result;
 }
 
-async function sellShare(id, share){
+async function sellShare(id, total_shares_, current_price_){
     const user = await User.findById(id);
-    if(!course) return;
+    if(!user) return;
     const share_exists = user.shares.find(user.shares.symbol === symbol_); 
     if(!share_exists){
         return;
@@ -70,12 +71,13 @@ async function sellShare(id, share){
     else{
         if(share.total_shares > user.shares[share_exists]){
             user.shares[share_exists].splice(share_exists, 1);
-            user.balance = updateBalance(share.total_shares * share.total_spent);
+            updateBalance(total_shares * current_price_);
         }
         else{
-            user.shares[share_exists].total_shares -= share.total_shares; 
-            user.shares[share_exists].total_spent -= share.total_shares * get_price(share.symbol); //PLACEHOLDER FOR API
-            updateBalance(id, share.total_shares * get_price(share.symbol)) //PLACEHOLDER FOR API
+            user.shares[share_exists].total_shares -= total_shares_; 
+            user.shares[share_exists].total_spent -= total_shares_ * current_price_; //PLACEHOLDER FOR API
+            user.shares[share_exists].average_spent = user.total_spent / user.total_shares 
+            updateBalance(username, total_shares_ * current_price_) //PLACEHOLDER FOR API
         }
     }
     const result = await user.save();
@@ -98,7 +100,7 @@ function getUserQuery(username_){
 
 app.use(express.json());
 
-
+//send entire user
 app.get('/:username', (req, res) => {
     getUserQuery(req.params.username).exec(function(err, users) {
         if(err) return;
@@ -111,22 +113,34 @@ app.get('/:username', (req, res) => {
     });
 });
 
-app.post('/:username/:password/:balance', (req, res) => {
+//create user
+app.post('/', (req, res) => {
+    getUserQuery(req.params.username).exec(function(err, users) {
+        if(err) return;
+        console.log(users);
+        if(users.length === 0) res.status(404).send("User not found");
+        if(req.body.side === 'buy'){
+            users[0].buyShare()
+        }
+        else if(req.body.side === 'sell'){
+
+        }    
+    });
+});
+
+//buy/sell shares
+app.put('/', (req, res) => { 
     getUserQuery(req.params.username).exec(function(err, users) {
         if(err) return;
         console.log(users);
         if(users.length === 0) res.status(404).send("User not found");
         users.forEach(function(user){
-            console.log(req.params.user);
-            res.send(user);
+            console.log(req.body.username);
         });    
     });
 });
 
-app.put('/:username', (req, res) => {
-    res.send(user);
-});
-
+//remove username
 app.delete('/', (req, res) => {
     res.send(user);
 });
@@ -137,4 +151,9 @@ app.listen(port, () => {
     console.log(`Listening port ${port}...`)
 });
 
-//newUser('kmanriq1', '12345', 10000);
+let val = 0;
+if (val = 0) {
+    newUser('kmanriq1', 10000);
+    val++;
+}
+//
