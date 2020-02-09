@@ -1,2 +1,3 @@
 .pynb_checkpoints
 .~lock*
+/backend/node_modules
