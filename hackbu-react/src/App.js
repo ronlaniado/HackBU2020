@@ -3,6 +3,7 @@ import "./App.css";
 import Portfolio from "./components/Portfolio";
 import Navbar from "./components/Navbar";
 import MarketActions from "./components/MarketActions";
+import Chart from "./components/Chart";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -12,7 +13,12 @@ export default class App extends React.Component {
       AAPL: 0,
       AMZN: 0,
       GOOG: 0,
-      FB: 0
+      FB: 0,
+      historyMSFT: [],
+      historyAAPL: [],
+      historyGOOG: [],
+      historyAMZN: [],
+      historyFB: []
     };
   }
   componentDidMount() {
@@ -46,12 +52,19 @@ export default class App extends React.Component {
       .then(symbolJSON => {
         const timeSeries = symbolJSON["Time Series (1min)"];
         const newestData = Object.keys(timeSeries);
+        console.log(newestData);
+        let symbolData = [];
+        for (let i = 0; i < newestData.length; i++) {
+          let myOpenData = timeSeries[newestData[i]];
+          symbolData.push({x: i, y: parseFloat(myOpenData["1. open"])});
+        }
+        console.log(symbolData)
         const openData = timeSeries[newestData[0]];
         console.log(openData["1. open"]);
+        let symbolDataName = "history" + symbol;
         this.setState({ [symbol]: openData["1. open"] });
-        console.log(symbol + ":     " + openData["1. open"]);
+        this.setState({[symbolDataName]: symbolData})
       });
-    console.log("MSFT: " + this.state.MSFT);
   };
 
   render() {
@@ -59,8 +72,11 @@ export default class App extends React.Component {
 
     return (
       <div className="App">
+                  <Navbar />
         <div className="components">
-          <Navbar />
+          <div className="chart">
+          <Chart data={this.state.historyMSFT}/>
+          </div>
           <MarketActions
             MSFT={this.state.MSFT}
             AAPL={this.state.AAPL}
