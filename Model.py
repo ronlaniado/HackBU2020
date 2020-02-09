@@ -236,13 +236,13 @@ from keras.layers.recurrent import LSTM
 from keras import optimizers
 from keras.models import model_from_json
 
-lstm_mode_aapl = Sequential()
-lstm_mode_aapl.add(LSTM(100, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t_aapl.shape[2]), dropout=0.0, recurrent_dropout=0.0, stateful=True,     kernel_initializer='random_uniform'))
-lstm_mode_aapl.add(Dropout(0.5))
-lstm_mode_aapl.add(Dense(20,activation='relu'))
-lstm_mode_aapl.add(Dense(1,activation='sigmoid'))
+lstm_model_aapl = Sequential()
+lstm_model_aapl.add(LSTM(100, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t_aapl.shape[2]), dropout=0.0, recurrent_dropout=0.0, stateful=True,     kernel_initializer='random_uniform'))
+lstm_model_aapl.add(Dropout(0.5))
+lstm_model_aapl.add(Dense(20,activation='relu'))
+lstm_model_aapl.add(Dense(1,activation='sigmoid'))
 optimizer = optimizers.RMSprop(learning_rate=0.01)
-lstm_mode_aapl.compile(loss='mean_squared_error', optimizer=optimizer)
+lstm_model_aapl.compile(loss='mean_squared_error', optimizer=optimizer)
 
 
 # In[1]:
@@ -251,7 +251,7 @@ lstm_mode_aapl.compile(loss='mean_squared_error', optimizer=optimizer)
 from keras.callbacks.callbacks import CSVLogger
 csv_logger = CSVLogger(os.path.join('.', 'aapl' + '.log'), append=True)
 
-history = lstm_mode_aapl.fit(x_t_aapl, y_t_aapl, epochs=EPOCHS, verbose=2, batch_size=BATCH_SIZE,
+history = lstm_model_aapl.fit(x_t_aapl, y_t_aapl, epochs=EPOCHS, verbose=2, batch_size=BATCH_SIZE,
                     shuffle=False, validation_data=(trim_dataset(x_val_aapl, BATCH_SIZE),
                     trim_dataset(y_val_aapl, BATCH_SIZE)), callbacks=[csv_logger])
 """
@@ -263,3 +263,8 @@ with open('lstm_mode_aapll_aapl.json',"w") as json_file:
     json_file.write(model_json)
 lstm_mode_aapll_aapl.save_weights("model_aapl.h5")
 print("saved model to disk")"""
+
+lstm_model_aapl.save('aapl_model.h5')
+del lstm_model_aapl
+
+model = load_model(my_model.h5)
