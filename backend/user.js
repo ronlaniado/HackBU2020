@@ -91,7 +91,8 @@ async function updateBalance(id, balance_){
 }
 
 function getUserQuery(username_){
-    var query = User.find({username: username_});
+    var query = User.find({username: username_})
+    if(query === undefined) return -1;
     return query;
 }
 
@@ -99,11 +100,10 @@ app.use(express.json());
 
 
 app.get('/:username', (req, res) => {
-    console.log('getting',req.params.username);
-
-    getUserQuery(req.params.username).exec(function(err,users){
-        if(err) return console.log("FUCK");
+    getUserQuery(req.params.username).exec(function(err, users) {
+        if(err) return;
         console.log(users);
+        if(users.length === 0) res.status(404).send("User not found");
         users.forEach(function(user){
             console.log(req.params.user);
             res.send(user);
@@ -111,11 +111,19 @@ app.get('/:username', (req, res) => {
     });
 });
 
-app.post('/', (req, res) => {
-    res.send(user);
+app.post('/:username/:password/:balance', (req, res) => {
+    getUserQuery(req.params.username).exec(function(err, users) {
+        if(err) return;
+        console.log(users);
+        if(users.length === 0) res.status(404).send("User not found");
+        users.forEach(function(user){
+            console.log(req.params.user);
+            res.send(user);
+        });    
+    });
 });
 
-app.put('/', (req, res) => {
+app.put('/:username', (req, res) => {
     res.send(user);
 });
 
