@@ -1,10 +1,10 @@
 import React from "react";
-import "../styles/Navbar.css";
+import "../styles/Navbar.scss";
 
 function Navbar() {
   return (
     <div className="navbar">
-     <div className="search-bar"></div>
+     <input className="search-bar"></input>
     </div>
   );
 }
