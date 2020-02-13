@@ -1,0 +1,23 @@
+.navbar {
+    height: 90px;
+    display: flex;
+    widtH: 100%;
+    background-color: white;
+    justify-content: center;
+    align-content: center;
+    display: flex;
+    align-items: center ;
+
+    .search-bar {
+        width: 800px;
+        border: none;
+        height: 45px;
+        border-radius: 30px;
+        background: #f7f7f7;
+        padding-left: 50px;
+    }
+
+    .search-bar:focus {
+        outline: none;
+    }
+}
