@@ -1,5 +1,9 @@
 @import '~antd/dist/antd.css';
 
+html, body {
+  background-color: #F7F7F7;
+}
+
 .App {
   display: flex;
   flex-direction: column;
@@ -46,8 +50,3 @@
   }
 }
 * { margin: 0; padding: 0; }
-
-.chart {
-  height: 500px;
-  width: 650px;
-}

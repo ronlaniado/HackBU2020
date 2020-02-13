@@ -8,7 +8,7 @@ export default class Chart extends React.Component {
     }
 
     render() {
-        const data = {
+        const chartData = {
             datasets: [
               {
                 label: 'MSFT',
@@ -37,7 +37,7 @@ export default class Chart extends React.Component {
           <Line
             width={500}
             height={650}
-            data={this.props.historyMSFT}
+            data={chartData}
             options={{
               maintainAspectRatio: false,
               showLines: true,
@@ -46,8 +46,8 @@ export default class Chart extends React.Component {
                 yAxes: [
                   {
                     ticks: {
-                      min: 140,
-                      max: 200
+                      min: 183.5,
+                      max: 184.5
                     }
                   }
                 ]
