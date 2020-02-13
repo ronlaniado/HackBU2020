@@ -28,6 +28,19 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
+/*
+============ User functions ============
+- newUser(): creates new document in database 
+- deleteUser(): removes document from database 
+- buyShare(): adds a share to user's list of shares, changes 
+    recalculate user balance (balance - total spent in transaction)
+- sellShare(): subtracts number of shares from user's list of shares 
+    recalculate user balance 
+- updateBalance(): add value (+/-) to user's balance
+- NOTE: for all functions above, check if username exists in database. Otherwise, do not execute the transaction 
+- getUserQuery(): checks if a user exists in database by username
+*/
+
 async function newUser(username_, balance_){
     const user = new User({
         username: username_,
@@ -99,6 +112,18 @@ function getUserQuery(username_){
 }
 
 app.use(express.json());
+
+/*
+============ REQUESTS ============ 
+GET: used to get info about user and pass it to frontend. Pass info in a JSON
+POST: create new user and save it in database (info passed from frontend to backend in a JSON)
+PUT: when user buys shares (info passed from frontend to backend in a JSON)
+PUT: when user sells shares (info passed from frontend to backend in a JSON)
+PUT: when user wants to withdraw money from balance (info passed from frontend to backend in a JSON)
+PUT: when user wants to deposit money to balance (info passed from frontend to backend in a JSON)
+PUT: when user wants to modify password (info passed from frontend to backend in a JSON)
+DELETE: when user wants to delete its account (info passed from frontend to backend in a JSON)
+*/
 
 //send entire user
 app.get('/:username', (req, res) => {
