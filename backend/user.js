@@ -41,14 +41,7 @@ const User = mongoose.model('User', userSchema);
 - getUserQuery(): checks if a user exists in database by username
 */
 
-async function newUser(username_, balance_){
-    const user = new User({
-        username: username_,
-        balance: balance_
-    });
-    const result = await user.save();
-    console.log(result);
-}
+//async function newUser(username_, password_, balance_){
 
 async function deleteUser(id){
     const result = await User.deleteOne({_id: id});
@@ -131,7 +124,7 @@ app.get('/:username', (req, res) => {
         if(err) return;
         console.log(users);
         if(users.length === 0) res.status(404).send("User not found");
-        users.forEach(function(user){
+        users.forEach((user) => {
             console.log(req.params.user);
             res.send(user);
         });    
@@ -139,17 +132,25 @@ app.get('/:username', (req, res) => {
 });
 
 //create user
-app.post('/', (req, res) => {
-    getUserQuery(req.params.username).exec(function(err, users) {
-        if(err) return;
-        console.log(users);
-        if(users.length === 0) res.status(404).send("User not found");
-        if(req.body.side === 'buy'){
-            users[0].buyShare()
-        }
-        else if(req.body.side === 'sell'){
+//NOTE: check this link to implement password
+//https://www.thepolyglotdeveloper.com/2019/02/hash-password-data-mongodb-mongoose-bcrypt/
 
-        }    
+app.post('/', (req, res) => {
+    getUserQuery(req.body.username).exec((err, users) => {
+        if(err) return;
+        if(users.length !== 0){
+            res.status(400).send("Username already exists");
+        } 
+        else {
+            var data_u = new User(req.body);
+            data_u.save()
+                .then(item => {
+                    res.send(data_u);
+                })
+                .catch(err => {
+                    res.status(400).send("Unable to save data");
+                });
+        }
     });
 });
 
