@@ -125,7 +125,6 @@ app.get('/:username', (req, res) => {
         console.log(users);
         if(users.length === 0) res.status(404).send("User not found");
         users.forEach((user) => {
-            console.log(req.params.user);
             res.send(user);
         });    
     });
@@ -167,8 +166,20 @@ app.put('/', (req, res) => {
 });
 
 //remove username
-app.delete('/', (req, res) => {
-    res.send(user);
+app.delete('/:username', (req, res) => {
+    var user_del = null;
+    getUserQuery(req.body.username).exec((err, users) => {
+        if(err) return;
+        if(users.length === 0){
+            res.status(400).send("Username does not exist");
+        }
+        users.forEach((user) => {
+            user_del = new User(user);
+        });
+    });
+    User.findOneAndDelete({username: req.params.username}, (err) => {
+        res.send(user_del);
+    });
 });
 
 const port = process.env.PORT || 666;
