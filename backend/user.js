@@ -153,25 +153,12 @@ app.post('/', (req, res) => {
     });
 });
 
-//buy/sell shares
-app.put('/', (req, res) => { 
-    getUserQuery(req.params.username).exec(function(err, users) {
-        if(err) return;
-        console.log(users);
-        if(users.length === 0) res.status(404).send("User not found");
-        users.forEach(function(user){
-            console.log(req.body.username);
-        });    
-    });
-});
-
-//remove username
 app.delete('/:username', (req, res) => {
     var user_del = null;
     getUserQuery(req.body.username).exec((err, users) => {
         if(err) return;
         if(users.length === 0){
-            res.status(400).send("Username does not exist");
+            res.status(404).send("User not found");
         }
         users.forEach((user) => {
             user_del = new User(user);
@@ -181,6 +168,25 @@ app.delete('/:username', (req, res) => {
         res.send(user_del);
     });
 });
+
+//buy/sell shares
+app.put('/', (req, res) => { 
+    var user_modify = null;
+    console.log(req.body);
+    getUserQuery(req.body.username).exec((err, users) => {
+        if(err) return;
+        if(users.length === 0) {
+            res.status(404).send("User not found");
+        }
+        users.forEach((user) => {
+            user_modify = new User(user);
+        });
+        console.log(user_modify.shares);
+    });
+});
+
+//remove username
+
 
 const port = process.env.PORT || 666;
 
